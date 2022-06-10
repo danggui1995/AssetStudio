@@ -1296,20 +1296,39 @@ namespace AssetStudioGUI
             Process.Start(pfi);
         }
 
+        class TTest
+        {
+            public AssetItem animator;
+            public List<AssetItem> animations;
+        }
         private void exportAnimatorwithAnimationClipMenuItem_Click(object sender, EventArgs e)
         {
             AssetItem animator = null;
             List<AssetItem> animationList = new List<AssetItem>();
             var selectedAssets = GetSelectedAssets();
+            Dictionary<string, TTest> test = new Dictionary<string, TTest>();
             foreach (var assetPreloadData in selectedAssets)
             {
+                if (!test.ContainsKey(assetPreloadData.Container))
+                {
+                    test.Add(assetPreloadData.Container, new TTest());
+                }
+                
                 if (assetPreloadData.Type == ClassIDType.Animator)
                 {
                     animator = assetPreloadData;
+                    
+                    test[assetPreloadData.Container].animator = assetPreloadData;
                 }
                 else if (assetPreloadData.Type == ClassIDType.AnimationClip)
                 {
                     animationList.Add(assetPreloadData);
+                    
+                    if (test[assetPreloadData.Container].animations == null)
+                    {
+                        test[assetPreloadData.Container].animations = new List<AssetItem>();
+                    }
+                    test[assetPreloadData.Container].animations.Add(assetPreloadData);
                 }
             }
 
@@ -1320,8 +1339,14 @@ namespace AssetStudioGUI
                 if (saveFolderDialog.ShowDialog(this) == DialogResult.OK)
                 {
                     saveDirectoryBackup = saveFolderDialog.Folder;
-                    var exportPath = Path.Combine(saveFolderDialog.Folder, "Animator") + Path.DirectorySeparatorChar;
-                    ExportAnimatorWithAnimationClip(animator, animationList, exportPath);
+                    var exportPath = saveFolderDialog.Folder + Path.DirectorySeparatorChar;
+                    foreach (var pair in test)
+                    {
+                        if (pair.Value.animator != null && pair.Value.animations != null && pair.Value.animations.Count > 0)
+                        {
+                            ExportAnimatorWithAnimationClip(pair.Value.animator, pair.Value.animations, exportPath);
+                        }
+                    }
                 }
             }
         }

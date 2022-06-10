@@ -282,10 +282,26 @@ namespace AssetStudioGUI
                 exportFullPath = Path.Combine(exportPath, item.Text + item.UniqueID, item.Text + ".fbx");
             }
             var m_Animator = (Animator)item.Asset;
-            var convert = animationList != null
-                ? new ModelConverter(m_Animator, Properties.Settings.Default.convertType, animationList.Select(x => (AnimationClip)x.Asset).ToArray())
-                : new ModelConverter(m_Animator, Properties.Settings.Default.convertType);
-            ExportFbx(convert, exportFullPath);
+
+            int totalCnt = 1;
+            
+            var skinConvert = new ModelConverter(m_Animator, Properties.Settings.Default.convertType);
+            ExportFbx(skinConvert, exportFullPath);
+            
+            if (animationList != null)
+            {
+                totalCnt += animationList.Count;
+                int current = 2;
+                foreach (var anim in animationList)
+                {
+                    var clip = (AnimationClip) anim.Asset;
+                    exportFullPath = Path.Combine(exportPath, item.Text, clip.m_Name + ".fbx");
+                    var convert = new ModelConverter(m_Animator, Properties.Settings.Default.convertType, new []{clip});
+                    ExportFbx(convert, exportFullPath, true);
+                    Progress.Report(current++, totalCnt);
+                }
+            }
+
             return true;
         }
 
@@ -307,7 +323,7 @@ namespace AssetStudioGUI
             ExportFbx(convert, exportPath);
         }
 
-        private static void ExportFbx(IImported convert, string exportPath)
+        private static void ExportFbx(IImported convert, string exportPath, bool animOnly = false)
         {
             var eulerFilter = Properties.Settings.Default.eulerFilter;
             var filterPrecision = (float)Properties.Settings.Default.filterPrecision;
@@ -321,6 +337,12 @@ namespace AssetStudioGUI
             var scaleFactor = (float)Properties.Settings.Default.scaleFactor;
             var fbxVersion = Properties.Settings.Default.fbxVersion;
             var fbxFormat = Properties.Settings.Default.fbxFormat;
+            if (animOnly)
+            {
+                exportSkins = false;
+                exportAnimations = true;
+                exportAllNodes = false;
+            }
             ModelExporter.ExportFbx(exportPath, convert, eulerFilter, filterPrecision,
                 exportAllNodes, exportSkins, exportAnimations, exportBlendShape, castToBone, boneSize, exportAllUvsAsDiffuseMaps, scaleFactor, fbxVersion, fbxFormat == 1);
         }

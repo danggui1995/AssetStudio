@@ -80,6 +80,17 @@ namespace AssetStudio.FbxInterop
 
         internal void ExportAll(bool blendShape, bool animation, bool eulerFilter, float filterPrecision)
         {
+            if (animation && _exportSkins == false)
+            {
+                if (_imported.AnimationList != null && _imported.AnimationList.Count > 0)
+                {
+                    if (_imported.AnimationList[0].TrackList.Count < 1)
+                    {
+                        return;
+                    }
+                }
+            }
+            
             var meshFrames = new List<ImportedFrame>();
 
             ExportRootFrame(meshFrames);
@@ -88,9 +99,12 @@ namespace AssetStudio.FbxInterop
             {
                 SetJointsFromImportedMeshes();
 
-                PrepareMaterials();
+                if (_exportSkins)
+                {
+                    PrepareMaterials();
 
-                ExportMeshFrames(_imported.RootFrame, meshFrames);
+                    ExportMeshFrames(_imported.RootFrame, meshFrames);
+                }
             }
             else
             {
