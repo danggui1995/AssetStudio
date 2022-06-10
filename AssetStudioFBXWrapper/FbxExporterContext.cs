@@ -196,14 +196,16 @@ namespace AssetStudio.FbxInterop
             var pTex = AsFbxCreateTexture(_pContext, texture.Name);
 
             _createdTextures.Add(texture.Name, pTex);
-
+            
             var file = new FileInfo(texture.Name);
-
-            using (var writer = new BinaryWriter(file.Create()))
+            if (!file.Exists)
             {
-                writer.Write(texture.Data);
+                using (var writer = new BinaryWriter(file.Create()))
+                {
+                    writer.Write(texture.Data);
+                }
             }
-
+            
             return pTex;
         }
 

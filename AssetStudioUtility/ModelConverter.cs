@@ -84,7 +84,7 @@ namespace AssetStudio
             InitWithAnimator(m_Animator);
             if (animationList == null)
             {
-                CollectAnimationClip(m_Animator);
+                // CollectAnimationClip(m_Animator);
             }
             else
             {

@@ -298,7 +298,7 @@ namespace AssetStudioGUI
                     exportFullPath = Path.Combine(exportPath, item.Text, clip.m_Name + ".fbx");
                     var convert = new ModelConverter(m_Animator, Properties.Settings.Default.convertType, new []{clip});
                     ExportFbx(convert, exportFullPath, true);
-                    Progress.Report(current++, totalCnt);
+                    // Progress.Report(current++, totalCnt);
                 }
             }
 
