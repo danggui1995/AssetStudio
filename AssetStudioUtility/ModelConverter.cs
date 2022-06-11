@@ -744,15 +744,11 @@ namespace AssetStudio
                     }
                     else if (ImportedHelpers.FindTexture(m_Texture2D.m_Name + ext, TextureList) != null) //已有相同名字的图片
                     {
-                        for (int i = 1; ; i++)
+                        var name = m_Texture2D.m_Name + ext;
+                        if (ImportedHelpers.FindTexture(name, TextureList) == null)
                         {
-                            var name = m_Texture2D.m_Name + $" ({i}){ext}";
-                            if (ImportedHelpers.FindTexture(name, TextureList) == null)
-                            {
-                                texture.Name = Path.Combine(exportFolder, name);;
-                                textureNameDictionary.Add(m_Texture2D, name);
-                                break;
-                            }
+                            texture.Name = Path.Combine(exportFolder, name);;
+                            textureNameDictionary.Add(m_Texture2D, name);
                         }
                     }
                     else
@@ -800,18 +796,6 @@ namespace AssetStudio
             {
                 var iAnim = new ImportedKeyframedAnimation();
                 var name = animationClip.m_Name;
-                if (AnimationList.Exists(x => x.Name == name))
-                {
-                    for (int i = 1; ; i++)
-                    {
-                        var fixName = name + $"_{i}";
-                        if (!AnimationList.Exists(x => x.Name == fixName))
-                        {
-                            name = fixName;
-                            break;
-                        }
-                    }
-                }
                 iAnim.Name = name;
                 iAnim.SampleRate = animationClip.m_SampleRate;
                 iAnim.TrackList = new List<ImportedAnimationKeyframedTrack>();

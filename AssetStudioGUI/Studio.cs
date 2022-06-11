@@ -661,7 +661,7 @@ namespace AssetStudioGUI
         {
             foreach (TreeNode i in nodes)
             {
-                if (i is GameObjectTreeNode gameObjectTreeNode && i.Checked)
+                if (i is GameObjectTreeNode gameObjectTreeNode)
                 {
                     gameObjects.Add(gameObjectTreeNode.gameObject);
                 }
