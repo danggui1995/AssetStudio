@@ -1307,6 +1307,7 @@ namespace AssetStudioGUI
             List<AssetItem> animationList = new List<AssetItem>();
             var selectedAssets = GetSelectedAssets();
             Dictionary<string, TTest> test = new Dictionary<string, TTest>();
+
             foreach (var assetPreloadData in selectedAssets)
             {
                 if (!test.ContainsKey(assetPreloadData.Container))
@@ -1317,7 +1318,7 @@ namespace AssetStudioGUI
                 if (assetPreloadData.Type == ClassIDType.Animator)
                 {
                     animator = assetPreloadData;
-                    
+                
                     test[assetPreloadData.Container].animator = assetPreloadData;
                 }
                 else if (assetPreloadData.Type == ClassIDType.AnimationClip)
@@ -1340,13 +1341,29 @@ namespace AssetStudioGUI
                 {
                     saveDirectoryBackup = saveFolderDialog.Folder;
                     var exportPath = saveFolderDialog.Folder + Path.DirectorySeparatorChar;
+                    int totalCnt = 0;
                     foreach (var pair in test)
                     {
                         if (pair.Value.animator != null && pair.Value.animations != null && pair.Value.animations.Count > 0)
                         {
-                            ExportAnimatorWithAnimationClip(pair.Value.animator, pair.Value.animations, exportPath);
+                            totalCnt++;
                         }
                     }
+                    
+                    ThreadPool.QueueUserWorkItem(state =>
+                    {
+                        Progress.Reset();
+                        int cnt = 1;
+                        foreach (var pair in test)
+                        {
+                            if (pair.Value.animator != null && pair.Value.animations != null && pair.Value.animations.Count > 0)
+                            {
+                                ExportAnimatorWithAnimationClip(pair.Value.animator, pair.Value.animations, exportPath);
+                                Progress.Report(cnt++, totalCnt);
+                            }
+                        }
+                        StatusStripUpdate($"All Finished");
+                    });
                 }
             }
         }

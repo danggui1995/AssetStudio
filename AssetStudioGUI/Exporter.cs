@@ -283,22 +283,17 @@ namespace AssetStudioGUI
             }
             var m_Animator = (Animator)item.Asset;
 
-            int totalCnt = 1;
-            
-            var skinConvert = new ModelConverter(m_Animator, Properties.Settings.Default.convertType);
+            var skinConvert = new ModelConverter(m_Animator, Properties.Settings.Default.convertType, null, Path.GetDirectoryName(exportFullPath));
             ExportFbx(skinConvert, exportFullPath);
             
             if (animationList != null)
             {
-                totalCnt += animationList.Count;
-                int current = 2;
                 foreach (var anim in animationList)
                 {
                     var clip = (AnimationClip) anim.Asset;
-                    exportFullPath = Path.Combine(exportPath, item.Text, clip.m_Name + ".fbx");
+                    string fullpath = Path.Combine(exportPath, item.Text, string.Format("{0}_{1}.fbx", item.Text, clip.m_Name));
                     var convert = new ModelConverter(m_Animator, Properties.Settings.Default.convertType, new []{clip});
-                    ExportFbx(convert, exportFullPath, true);
-                    // Progress.Report(current++, totalCnt);
+                    ExportFbx(convert, fullpath, true);
                 }
             }
 

@@ -580,26 +580,17 @@ namespace AssetStudioGUI
 
         public static void ExportAnimatorWithAnimationClip(AssetItem animator, List<AssetItem> animationList, string exportPath)
         {
-            // ThreadPool.QueueUserWorkItem(state =>
-            // {
-            //     Progress.Reset();
-            //     StatusStripUpdate($"Exporting {animator.Text}");
-                try
-                {
-                    ExportAnimator(animator, exportPath, animationList);
-                    // if (Properties.Settings.Default.openAfterExport)
-                    // {
-                    //     OpenFolderInExplorer(exportPath);
-                    // }
-                    // Progress.Report(1, 1);
-                    // StatusStripUpdate($"Finished exporting {animator.Text}");
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Export Animator:{animator.Text} error\r\n{ex.Message}\r\n{ex.StackTrace}");
-                    StatusStripUpdate("Error in export");
-                }
-            // });
+            StatusStripUpdate($"Exporting {animator.Text}");
+            try
+            {
+                ExportAnimator(animator, exportPath, animationList);
+                StatusStripUpdate($"Finished exporting {animator.Text}");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Export Animator:{animator.Text} error\r\n{ex.Message}\r\n{ex.StackTrace}");
+                StatusStripUpdate("Error in export");
+            }
         }
 
         public static void ExportObjectsWithAnimationClip(string exportPath, TreeNodeCollection nodes, List<AssetItem> animationList = null)

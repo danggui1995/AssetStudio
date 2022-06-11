@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -13,6 +14,8 @@ namespace AssetStudio
         public List<ImportedTexture> TextureList { get; protected set; } = new List<ImportedTexture>();
         public List<ImportedKeyframedAnimation> AnimationList { get; protected set; } = new List<ImportedKeyframedAnimation>();
         public List<ImportedMorph> MorphList { get; protected set; } = new List<ImportedMorph>();
+
+        public string exportFolder;
 
         private ImageFormat imageFormat;
         private Avatar avatar;
@@ -81,6 +84,25 @@ namespace AssetStudio
         public ModelConverter(Animator m_Animator, ImageFormat imageFormat, AnimationClip[] animationList = null)
         {
             this.imageFormat = imageFormat;
+            InitWithAnimator(m_Animator);
+            if (animationList == null)
+            {
+                // CollectAnimationClip(m_Animator);
+            }
+            else
+            {
+                foreach (var animationClip in animationList)
+                {
+                    animationClipHashSet.Add(animationClip);
+                }
+            }
+            ConvertAnimations();
+        }
+        
+        public ModelConverter(Animator m_Animator, ImageFormat imageFormat, AnimationClip[] animationList = null, string _exportFolder = null)
+        {
+            this.imageFormat = imageFormat;
+            exportFolder = _exportFolder;
             InitWithAnimator(m_Animator);
             if (animationList == null)
             {
@@ -319,8 +341,13 @@ namespace AssetStudio
                         mat = m_Material;
                     }
                 }
-                ImportedMaterial iMat = ConvertMaterial(mat);
-                iSubmesh.Material = iMat.Name;
+
+                if (exportFolder != null)
+                {
+                    ImportedMaterial iMat = ConvertMaterial(mat);
+                    iSubmesh.Material = iMat.Name;
+                }
+                
                 iSubmesh.BaseVertex = (int)mesh.m_SubMeshes[i].firstVertex;
 
                 //Face
@@ -713,7 +740,7 @@ namespace AssetStudio
                     var ext = $".{imageFormat.ToString().ToLower()}";
                     if (textureNameDictionary.TryGetValue(m_Texture2D, out var textureName))
                     {
-                        texture.Name = textureName;
+                        texture.Name = Path.Combine(exportFolder, textureName);
                     }
                     else if (ImportedHelpers.FindTexture(m_Texture2D.m_Name + ext, TextureList) != null) //已有相同名字的图片
                     {
@@ -722,7 +749,7 @@ namespace AssetStudio
                             var name = m_Texture2D.m_Name + $" ({i}){ext}";
                             if (ImportedHelpers.FindTexture(name, TextureList) == null)
                             {
-                                texture.Name = name;
+                                texture.Name = Path.Combine(exportFolder, name);;
                                 textureNameDictionary.Add(m_Texture2D, name);
                                 break;
                             }
@@ -730,7 +757,7 @@ namespace AssetStudio
                     }
                     else
                     {
-                        texture.Name = m_Texture2D.m_Name + ext;
+                        texture.Name =  Path.Combine(exportFolder, m_Texture2D.m_Name + ext);
                         textureNameDictionary.Add(m_Texture2D, texture.Name);
                     }
 

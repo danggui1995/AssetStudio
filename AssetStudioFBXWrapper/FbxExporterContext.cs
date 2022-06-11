@@ -17,6 +17,7 @@ namespace AssetStudio.FbxInterop
         public FbxExporterContext()
         {
             _pContext = AsFbxCreateContext();
+            
             _frameToNode = new Dictionary<ImportedFrame, IntPtr>();
             _createdMaterials = new List<KeyValuePair<string, IntPtr>>();
             _createdTextures = new Dictionary<string, IntPtr>();
@@ -47,8 +48,8 @@ namespace AssetStudio.FbxInterop
             _frameToNode.Clear();
             _createdMaterials.Clear();
             _createdTextures.Clear();
-
-            AsFbxDisposeContext(ref _pContext);
+            
+            // AsFbxDisposeContext(ref _pContext);
         }
 
         private void EnsureNotDisposed()
@@ -62,9 +63,7 @@ namespace AssetStudio.FbxInterop
         internal void Initialize(string fileName, float scaleFactor, int versionIndex, bool isAscii, bool is60Fps)
         {
             EnsureNotDisposed();
-
             var b = AsFbxInitializeContext(_pContext, fileName, scaleFactor, versionIndex, isAscii, is60Fps, out var errorMessage);
-
             if (!b)
             {
                 var fullMessage = $"Failed to initialize FbxExporter: {errorMessage}";
@@ -478,7 +477,6 @@ namespace AssetStudio.FbxInterop
             try
             {
                 pAnimContext = AsFbxAnimCreateContext(eulerFilter);
-
                 for (int i = 0; i < animationList.Count; i++)
                 {
                     var importedAnimation = animationList[i];
@@ -492,7 +490,7 @@ namespace AssetStudio.FbxInterop
                     {
                         takeName = $"Take{i.ToString()}";
                     }
-
+                    
                     AsFbxAnimPrepareStackAndLayer(_pContext, pAnimContext, takeName);
 
                     ExportKeyframedAnimation(rootFrame, importedAnimation, pAnimContext, filterPrecision);
@@ -522,6 +520,11 @@ namespace AssetStudio.FbxInterop
 
                 var pNode = _frameToNode[frame];
 
+                if (pNode == IntPtr.Zero)
+                {
+                    continue;
+                }
+                
                 AsFbxAnimLoadCurves(pNode, pAnimContext);
 
                 AsFbxAnimBeginKeyModify(pAnimContext);

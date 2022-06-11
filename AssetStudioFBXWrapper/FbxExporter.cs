@@ -38,7 +38,7 @@ namespace AssetStudio.FbxInterop
 
         ~FbxExporter()
         {
-            Dispose(false);
+
         }
 
         public void Dispose()

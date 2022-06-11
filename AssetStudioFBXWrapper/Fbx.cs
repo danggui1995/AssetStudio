@@ -26,33 +26,21 @@ namespace AssetStudio
 
         public static class Exporter
         {
-
             public static void Export(string path, IImported imported, bool eulerFilter, float filterPrecision,
                 bool allNodes, bool skins, bool animation, bool blendShape, bool castToBone, float boneSize, bool exportAllUvsAsDiffuseMaps, float scaleFactor, int versionIndex, bool isAscii)
             {
-                var file = new FileInfo(path);
-                var dir = file.Directory;
-
-                if (!dir.Exists)
-                {
-                    dir.Create();
-                }
-
-                var currentDir = Directory.GetCurrentDirectory();
-                Directory.SetCurrentDirectory(dir.FullName);
-
-                var name = Path.GetFileName(path);
-
-                using (var exporter = new FbxExporter(name, imported, allNodes, skins, castToBone, boneSize, exportAllUvsAsDiffuseMaps, scaleFactor, versionIndex, isAscii))
+                var dir = Path.GetDirectoryName(path);
+                Directory.CreateDirectory(dir);
+                
+                var exporter = new FbxExporter(path, imported, allNodes, skins, castToBone, boneSize,
+                    exportAllUvsAsDiffuseMaps, scaleFactor, versionIndex, isAscii);
                 {
                     exporter.Initialize();
                     exporter.ExportAll(blendShape, animation, eulerFilter, filterPrecision);
+                    exporter.Dispose();
                 }
-
-                Directory.SetCurrentDirectory(currentDir);
             }
 
         }
-
     }
 }
